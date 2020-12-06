@@ -46,14 +46,32 @@ public class App {
 
         List<String> commitIdIdList = new ArrayList<>();
         commitIdIdList.add("824e6abb1f524be726b1a207b7a2231aa9a4f95c");
-        commitIdIdList.add("3fd802b3604e22f3d600cafab52e4491561583c8");
-        commitIdIdList.add("ec3d479d473c9d09d4278b1aa87bc943d40d4d10");
-        commitIdIdList.add("f63565a45b739f00a8518b234993337d22f54e27");
+        //commitIdIdList.add("3fd802b3604e22f3d600cafab52e4491561583c8");
+        //commitIdIdList.add("ec3d479d473c9d09d4278b1aa87bc943d40d4d10");
+        //commitIdIdList.add("f63565a45b739f00a8518b234993337d22f54e27");
 
 
         for (String commidId : commitIdIdList) {
             List<Pair<String, Refactoring>> refactoringPairList = detectExtractMethodRefactoringData(commidId);
+            printLocationInfo(refactoringPairList);
             performCodeExtraction(refactoringPairList);
+        }
+    }
+
+    private static void printLocationInfo(List<Pair<String, Refactoring>> refactoringPairList) {
+        for (Pair<String, Refactoring> refactoringPair : refactoringPairList) {
+            ExtractOperationRefactoring refactoring = (ExtractOperationRefactoring) refactoringPair.getRight();
+            LocationInfo locationInfo = refactoring.getSourceOperationAfterExtraction().getLocationInfo();
+
+            System.out.println("File Path: " + locationInfo.getFilePath());
+            System.out.println("Start Line: " + locationInfo.getStartLine());
+            System.out.println("End Line: " + locationInfo.getEndLine());
+
+            System.out.println("Start Column: " + locationInfo.getStartColumn());
+            System.out.println("End Column: " + locationInfo.getEndColumn());
+
+            System.out.println("Start OffSet: " + locationInfo.getStartOffset());
+            System.out.println("Length: " + locationInfo.getLength());
         }
     }
 
@@ -64,7 +82,6 @@ public class App {
 
         try {
             RefactoringHandler refactoringHandler = new RefactoringHandler() {
-
                 public void handle(String commitId, List<Refactoring> refs) {
                     if (refs == null)
                         return;
@@ -77,7 +94,7 @@ public class App {
                 }
             };
 
-            miner.detectAtCommit(repository, commitId, refactoringHandler, 30);
+            miner.detectAtCommit(repository, commitId, refactoringHandler, 300);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,7 +110,6 @@ public class App {
 
     private static void performCodeExtraction(List<Pair<String, Refactoring>> refactoringPairList) {
         for (Pair<String, Refactoring> pair : refactoringPairList) {
-
             String commitId = pair.getLeft();
             ExtractOperationRefactoring refactoring = (ExtractOperationRefactoring) pair.getRight();
 
